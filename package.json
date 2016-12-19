@@ -1,0 +1,37 @@
+{
+  "name": "pipeline-leaderboard",
+  "version": "0.0.0",
+  "description": "",
+  "main": "target/main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pedrorfernandes/pipeline-leaderboard"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prestart": "tsc",
+    "start": "node target/main.js",
+    "watch": "rm -rf target/ && concurrently --kill-others \"tsc -w\" \"nodemon \"",
+    "tslint": "tslint -c tslint.json ./src/**/*.ts"
+  },
+  "author": "Pedro Fernandes <pedrorfernandes@yahoo.com>",
+  "contributors": [{
+    "name": "Pedro Fernandes",
+    "email": "pedrorfernandes@yahoo.com"
+  }, {
+    "name": "Gonçalo Matos",
+    "email": ""
+  }],
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^6.0.52",
+    "concurrently": "^3.1.0",
+    "nodemon": "^1.11.0",
+    "tslint-eslint-rules": "^2.1.0",
+    "typescript": "^2.1.4"
+  },
+  "dependencies": {
+    "@reactivex/rxjs": "^5.0.0-rc.5",
+    "jenkins": "git://github.com/pedrorfernandes/node-jenkins.git#master"
+  }
+}
