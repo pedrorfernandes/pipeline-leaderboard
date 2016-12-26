@@ -1,0 +1,12 @@
+FROM node:7.3
+
+RUN wget https://github.com/jwilder/dockerize/releases/download/v0.3.0/dockerize-linux-amd64-v0.3.0.tar.gz
+RUN tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.3.0.tar.gz
+
+ADD package.json package.json
+ADD . .
+
+RUN npm install
+RUN npm install pm2 -g
+RUN npm install knex -g
+RUN npm run prestart

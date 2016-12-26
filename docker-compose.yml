@@ -1,0 +1,35 @@
+version: '2'
+services:
+  db:
+    build: ./postgres
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+    ports:
+      - "5432:5432"
+  api-server:
+    build:
+      context: ./
+      dockerfile: ./src/server/Dockerfile
+      args:
+        server_name: |-
+          "pipeline-leaderboard-server"
+    links:
+      - db
+    environment:
+      - NODE_ENV=production
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+    ports:
+      - "3000:3000"
+  crawler:
+    build:
+      context: ./
+      dockerfile: ./src/crawler/Dockerfile
+    links:
+      - db
+      - api-server
+    environment:
+      - NODE_ENV=production
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres

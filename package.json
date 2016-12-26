@@ -2,36 +2,43 @@
   "name": "pipeline-leaderboard",
   "version": "0.0.0",
   "description": "",
-  "main": "target/main.js",
+  "main": "target/crawler/src/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/pedrorfernandes/pipeline-leaderboard"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prestart": "tsc",
-    "start": "node target/main.js",
-    "watch": "rm -rf target/ && concurrently --kill-others \"tsc -w\" \"nodemon \"",
+    "copy-files": "cpx '{common,config,server,crawler}/**/*.json' target",
+    "prestart": "tsc && npm run copy-files",
+    "start": "node target/crawler/src/index.js",
+    "watch": "rm -rf target/ && concurrently --kill-others \"tsc -w\" \"npm run copy-files -- --watch\" ",
     "tslint": "tslint -c tslint.json ./src/**/*.ts"
   },
   "author": "Pedro Fernandes <pedrorfernandes@yahoo.com>",
-  "contributors": [{
-    "name": "Pedro Fernandes",
-    "email": "pedrorfernandes@yahoo.com"
-  }, {
-    "name": "Gonçalo Matos",
-    "email": ""
-  }],
+  "contributors": [
+    {
+      "name": "Pedro Fernandes",
+      "email": "pedrorfernandes@yahoo.com"
+    },
+    {
+      "name": "Gonçalo Matos",
+      "email": ""
+    }
+  ],
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^6.0.52",
     "concurrently": "^3.1.0",
+    "cpx": "^1.5.0",
     "nodemon": "^1.11.0",
     "tslint-eslint-rules": "^2.1.0",
     "typescript": "^2.1.4"
   },
   "dependencies": {
     "@reactivex/rxjs": "^5.0.0-rc.5",
-    "jenkins": "git://github.com/pedrorfernandes/node-jenkins.git#master"
+    "jenkins": "git://github.com/pedrorfernandes/node-jenkins.git#master",
+    "knex": "^0.12.6",
+    "pg": "^6.1.2"
   }
 }

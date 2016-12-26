@@ -8,5 +8,9 @@
         "outDir": "./target",
         "baseUrl": "."
     },
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ],
     "compileOnSave": false
 }

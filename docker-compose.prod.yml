@@ -1,0 +1,18 @@
+version: '2'
+services:
+  db:
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+  api-server:
+    restart: always
+  crawler:
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+volumes:
+  pg_data:
+    driver: local
