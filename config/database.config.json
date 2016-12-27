@@ -1,7 +1,9 @@
 {
   "client": "postgresql",
+  "debug": true,
   "connection": {
-    "database": "pipeline_leaderboard",
+    "host": "db",
+    "database": "postgres",
     "user": "postgres",
     "password": "postgres"
   },

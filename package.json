@@ -2,7 +2,6 @@
   "name": "pipeline-leaderboard",
   "version": "0.0.0",
   "description": "",
-  "main": "target/crawler/src/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/pedrorfernandes/pipeline-leaderboard"

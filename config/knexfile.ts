@@ -1,4 +1,4 @@
-import config from './database.json';
+import config from './database.config.json';
 
 export default {
     development: config,

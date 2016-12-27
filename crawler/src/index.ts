@@ -1,5 +1,5 @@
 import * as Rx from '@reactivex/rxjs';
-import { getInstance } from '../../common/src/jenkins';
+import { getInstance } from './jenkins';
 
 const jenkins = getInstance();
 

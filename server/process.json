@@ -3,7 +3,7 @@
     {
       "merge_logs": true,
       "name": "server",
-      "script": "./target/server/index.js",
+      "script": "./server/src/index.js",
       "out_file": "/tmp/server.log",
       "log_date_format": "MM/DD/YYYY HH:mm:ss"
     }

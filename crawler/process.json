@@ -3,7 +3,7 @@
     {
       "merge_logs": true,
       "name": "crawler",
-      "script": "./src/index.js",
+      "script": "./crawler/src/index.js",
       "out_file": "/tmp/crawler.log",
       "log_date_format": "MM/DD/YYYY HH:mm:ss"
     }

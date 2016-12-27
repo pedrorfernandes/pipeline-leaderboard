@@ -10,7 +10,7 @@ services:
   api-server:
     build:
       context: ./
-      dockerfile: ./src/server/Dockerfile
+      dockerfile: ./server/Dockerfile
       args:
         server_name: |-
           "pipeline-leaderboard-server"
@@ -25,7 +25,7 @@ services:
   crawler:
     build:
       context: ./
-      dockerfile: ./src/crawler/Dockerfile
+      dockerfile: ./crawler/Dockerfile
     links:
       - db
       - api-server
