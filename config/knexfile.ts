@@ -1,7 +1,7 @@
-import config from './database.config.json';
+const config = require('./database.config.json');
 
-export default {
-    development: config,
-    test: config,
-    production: config
-};
+export {
+    config as development,
+    config as test,
+    config as production
+}
