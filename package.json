@@ -28,6 +28,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^6.0.52",
+    "@types/lodash": "^4.14.48",
     "concurrently": "^3.1.0",
     "cpx": "^1.5.0",
     "nodemon": "^1.11.0",
@@ -38,6 +39,7 @@
     "@reactivex/rxjs": "^5.0.0-rc.5",
     "jenkins": "git://github.com/pedrorfernandes/node-jenkins.git#master",
     "knex": "^0.12.6",
+    "lodash": "^4.17.4",
     "pg": "^6.1.2"
   }
 }

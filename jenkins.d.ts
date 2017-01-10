@@ -41,6 +41,8 @@ interface JenkinsNodeCreateParam {
 interface JenkinsBuild {
     [key: string]: any;
     number: number;
+    actions: any[],
+    name: string
 }
 
 interface JenkinsJob {

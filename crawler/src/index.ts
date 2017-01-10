@@ -1,7 +1,5 @@
 import * as Rx from '@reactivex/rxjs';
-import { getInstance } from './jenkins';
-
-const jenkins = getInstance();
+import { jenkinsInstance as jenkins } from './jenkins';
 
 function getJobNames(observer: Rx.Observer<String>) {
     observer.next('EDS-Test-Mock');

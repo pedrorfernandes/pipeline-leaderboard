@@ -28,7 +28,6 @@ services:
       dockerfile: ./crawler/Dockerfile
     links:
       - db
-      - api-server
     environment:
       - NODE_ENV=production
       - POSTGRES_PASSWORD=postgres
