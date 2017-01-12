@@ -1,11 +1,18 @@
 import { jenkinsInstance as jenkins } from './jenkins';
 
-function getUpstreamBuild (jobName: string, build: JenkinsBuild, upstreamJobName: string): Promise<JenkinsBuild> {
+const isStartedByRemoteHost = (shortDescription) => /Started by remote host.*/.test(shortDescription);
 
-    const { upstreamProject, upstreamBuild } = build.actions
-        .filter((action) => action.hasOwnProperty('causes'))
-        .map((action) => action['causes'][0])
-        .pop();
+function getUpstreamBuild(jobName: string, build: JenkinsBuild, upstreamJobName: string): Promise<JenkinsBuild> {
+
+    const { upstreamProject, upstreamBuild, shortDescription } =
+        build.actions
+            .filter((action) => action.hasOwnProperty('causes'))
+            .map((action) => action['causes'][0])
+            .pop();
+
+    if (isStartedByRemoteHost(shortDescription)) {
+        return Promise.reject('The provided build is not caused by the upstream');
+    }
 
     // TODO lazy load from DB
     if (!upstreamProject) {

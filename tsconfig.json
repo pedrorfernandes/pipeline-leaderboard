@@ -9,8 +9,7 @@
         "baseUrl": "."
     },
     "exclude": [
-        "node_modules",
-        "**/*.spec.ts"
+        "node_modules"
     ],
     "compileOnSave": false
 }
