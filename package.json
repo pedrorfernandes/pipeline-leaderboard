@@ -30,6 +30,7 @@
   "devDependencies": {
     "@types/chai": "^3.4.34",
     "@types/chai-as-promised": "0.0.29",
+    "@types/knex": "0.0.39",
     "@types/lodash": "^4.14.48",
     "@types/mocha": "^2.2.37",
     "@types/node": "^6.0.52",

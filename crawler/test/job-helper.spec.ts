@@ -102,24 +102,35 @@ describe('getUpstreamBuild', function () {
 
                 return expect(result).to.eventually.equal(upstreamBuild);
             });
+
+            describe('and the previous build does not exist', function () {
+
+                it('should return an error', function () {
+                    const downstreamBuild = <JenkinsBuild>{
+                        number: 30,
+                        actions: [{
+                            causes: [{
+                                shortDescription: 'Started by user RacingMackerel', userName: 'RacingMackerel'
+                            }]
+                        }]
+                    };
+                    const previousDownstreamBuild = <JenkinsBuild>{
+                        number: 29,
+                        actions: [{
+                            causes: [{
+                                shortDescription: 'Started by user RacingMackerel', userName: 'RacingMackerel'
+                            }]
+                        }]
+                    };
+
+                    jenkins.build.get.withArgs('downstream', 29).resolves(previousDownstreamBuild);
+                    jenkins.build.get.withArgs('downstream', 28).rejects('Build 28 does not exist');
+
+                    const result = getUpstreamBuild('downstream', downstreamBuild, 'upstream');
+
+                    return expect(result).to.eventually.be.rejectedWith('Build 28 does not exist');
+                });
+            });
         });
     });
-
-    describe('when the build is not caused by the upstream project', function () {
-
-        it('should return an error', function () {
-            const downstreamBuild = <JenkinsBuild>{
-                actions: [{
-                    causes: [{
-                        shortDescription: 'Started by remote host github.com'
-                    }]
-                }]
-            };
-
-            const result = getUpstreamBuild('downstream', downstreamBuild, 'upstream');
-
-            return expect(result).to.eventually.be.rejectedWith('The provided build is not caused by the upstream');
-        });
-    });
-
 });

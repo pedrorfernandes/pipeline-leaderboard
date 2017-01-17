@@ -1,29 +1,28 @@
 exports.up = (knex, Promise) => {
   return knex.schema
     .createTable('Job', (table) => {
-      table.biginteger('parentId').unsigned().references('jobId').inTable('Job');
-      table.string('name');
+      table.string('upstreamId').references('jobId').inTable('Job');
+      table.string('jobId').primary();
       table.json('json');
-      table.primary(['name']);
     })
     .createTable('JobBuild', (table) => {
-      table.biginteger('jobId').unsigned().references('jobId').inTable('Job');
-      table.biginteger('parentBuildId').unsigned().references('parentBuildId').inTable('JobBuild');
+      table.string('buildId').primary();
+      table.string('jobId').references('jobId').inTable('Job');
+      table.string('upstreamBuildId').references('buildId').inTable('JobBuild');
       table.integer('number');
       table.json('buildJson');
       table.json('testReportJson');
-      table.primary(['jobId', 'number']);
     })
     .createTable('TestCase', (table) => {
-      table.bigincrements('testCaseId').primary();
-      table.biginteger('jobId').unsigned().references('jobId').inTable('Job');
+      table.string('testCaseId').primary();
+      table.string('jobId').references('jobId').inTable('Job');
       table.string('testId').index();
-      table.string('name').index().unique();
+      table.string('name').index();
       table.string('suite');
     })
     .createTable('TestCase_JobBuild', (table) => {
-      table.biginteger('testCaseId').unsigned().references('testCaseId').inTable('TestCase');
-      table.biginteger('jobBuildId').unsigned().references('jobBuildId').inTable('JobBuild');
+      table.string('testCaseId').unsigned().references('testCaseId').inTable('TestCase');
+      table.string('jobBuildId').unsigned().references('jobBuildId').inTable('JobBuild');
       table.timestamp('timestamp');
       table.float('duration');
       table.string('status');
