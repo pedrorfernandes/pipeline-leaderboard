@@ -1,5 +1,6 @@
 import * as Rx from '@reactivex/rxjs';
 import { jenkinsInstance as jenkins } from './jenkins';
+import { StoredJob } from '../../common/models/src/stored-job';
 
 function getJobNames(observer: Rx.Observer<String>) {
     observer.next('EDS-Test-Mock');
@@ -34,6 +35,8 @@ function returnJobAndBuildAndTestReport(
 const cronObservable: Rx.Observable<String> = Rx.Observable.create(getJobNames);
 
 const jobObservable = cronObservable.flatMap(getJob);
+
+jobObservable.map((job) => StoredJob.save(job));
 
 const buildObservable = jobObservable.flatMap(getBuilds, returnJobAndBuild);
 
