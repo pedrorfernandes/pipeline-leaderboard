@@ -1,15 +1,14 @@
 import { dbInstance } from '../../connections/database';
 import { stringToHash } from './to-hash';
-
-const jobTable = dbInstance('Job');
+import { upsertItems } from '../../knex/upsert';
 
 class StoredJob {
 
-    static save(job: JenkinsJob, upstreamJob?: JenkinsJob) {
+    static save = (job: JenkinsJob, upstreamJob?: JenkinsJob) => {
         const jobId = stringToHash(job.name);
         const upstreamJobId = upstreamJob ? stringToHash(upstreamJob.name) : undefined;
 
-        return jobTable.insert({
+        return upsertItems(dbInstance, 'Job', 'jobId', {
             jobId,
             upstreamJobId,
             json: JSON.stringify(job),

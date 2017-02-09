@@ -1,5 +1,11 @@
 {
     "host": "your.jenkins.domain",
     "username": "jenkins",
-    "password": "jenkins"
+    "password": "jenkins",
+    "jobs": [
+       {
+           "testJob": "your-app-mock-tests",
+           "productJob": "your-app"
+       }
+   ]
 }

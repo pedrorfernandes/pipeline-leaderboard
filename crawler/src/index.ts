@@ -1,46 +1,64 @@
 import * as Rx from '@reactivex/rxjs';
 import { jenkinsInstance as jenkins } from './jenkins';
 import { StoredJob } from '../../common/models/src/stored-job';
+import { getUpstreamBuild } from './job-helper';
+const config = require('../../config/jenkins.config.json');
 
-function getJobNames(observer: Rx.Observer<String>) {
-    observer.next('EDS-Test-Mock');
+class JobConfig {
+    testJob: string;
+    productJob: string;
 }
 
-function getJob(jobName: String) {
-    return Rx.Observable.fromPromise(jenkins.job.get(jobName));
-}
+const cronObservable: Rx.Observable<JobConfig> = Rx.Observable.create(
+    function getJobNames(observer: Rx.Observer<JobConfig>) {
+        config.jobs.map((jobConfig) => observer.next(jobConfig));
+    }
+);
 
-function getBuilds(job: JenkinsJob) {
-    const buildPromises = job.builds.map((build) => jenkins.build.get(job.name, build.number));
+const jobObservable = cronObservable.flatMap(
+    function (jobConfig) {
+        return Rx.Observable.forkJoin(
+            jenkins.job.get(jobConfig.testJob),
+            jenkins.job.get(jobConfig.productJob)
+        );
+    },
+    function returnCombined(jobConfig, [job, upstreamJob]) {
+        return { job, upstreamJob };
+    }
+);
 
-    return Rx.Observable.from(buildPromises)
-        .flatMap((buildPromise) => Rx.Observable.fromPromise(buildPromise));
-}
+const buildObservable = jobObservable.flatMap(
+    function getBuilds({job}) {
+        const buildPromises = job.builds.map(
+            (build) => jenkins.build.get(job.name, build.number)
+        );
 
-function getTestReport({job, build}: {job: JenkinsJob, build: JenkinsBuild}) {
-    return jenkins.testReport.get(job.name, build.number);
-}
+        return Rx.Observable
+            .from(buildPromises)
+            .flatMap((buildPromise) => Rx.Observable.fromPromise(buildPromise));
+    },
+    function returnCombined(result, build) {
+        return Object.assign({}, result, { build });
+    }
+);
 
-function returnJobAndBuild(job: JenkinsJob, build: JenkinsBuild) {
-    return { job, build };
-}
+const jobAndUpstream = buildObservable.flatMap(
+    function ({job, upstreamJob, build}) {
+        return getUpstreamBuild(job.name, build, upstreamJob.name);
+    },
+    function returnCombined(result, upstreamBuild) {
+        return Object.assign({}, result, { upstreamBuild });
+    }
+);
 
-function returnJobAndBuildAndTestReport(
-    { job, build }: { job: JenkinsJob, build: JenkinsBuild},
-    testReport: JenkinsTestReport
-) {
-    return { job, build, testReport };
-}
-
-const cronObservable: Rx.Observable<String> = Rx.Observable.create(getJobNames);
-
-const jobObservable = cronObservable.flatMap(getJob);
-
-jobObservable.map((job) => StoredJob.save(job));
-
-const buildObservable = jobObservable.flatMap(getBuilds, returnJobAndBuild);
-
-const testReportObservable = buildObservable.flatMap(getTestReport, returnJobAndBuildAndTestReport);
+const testReportObservable = jobAndUpstream.flatMap(
+    function getTestReport({ job, build }) {
+        return jenkins.testReport.get(job.name, build.number);
+    },
+    function returnCombined(result, testReport) {
+        return Object.assign({}, result, { testReport });
+    }
+);
 
 testReportObservable.subscribe(({job, build, testReport}) => {
     console.log('GOT', job.name, build.number, testReport.totalCount);

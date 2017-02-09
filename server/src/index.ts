@@ -1,1 +1,3 @@
-console.log('Hello world');
+setInterval(function () {
+    console.log('Hello world');
+}, 10000);
