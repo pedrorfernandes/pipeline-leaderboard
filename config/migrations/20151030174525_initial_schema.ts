@@ -17,7 +17,7 @@ exports.up = (knex, Promise) => {
     .createTable('TestCase', (table) => {
       table.biginteger('testCaseId').primary();
       table.biginteger('jobId').references('jobId').inTable('Job');
-      table.string('testId').index();
+      table.string('externalId').index();
       table.string('name').index();
       table.string('suite');
     })
@@ -26,6 +26,7 @@ exports.up = (knex, Promise) => {
       table.biginteger('buildId').references('buildId').inTable('JobBuild');
       table.timestamp('timestamp');
       table.float('duration');
+      table.float('suiteDuration');
       table.string('status');
       table.boolean('skipped');
       table.json('json');

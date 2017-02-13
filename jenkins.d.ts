@@ -47,12 +47,40 @@ interface JenkinsBuild {
 
 interface JenkinsJob {
     [key: string]: any;
-    builds: {[key: string]: any, number: number}[];
+    builds: { [key: string]: any, number: number }[];
     name: string;
 }
 
 interface JenkinsTestReport {
-    totalCount: number
+    duration?: number,
+    empty?: boolean,
+    failCount: number,
+    skipCount: number,
+    totalCount: number,
+    urlName: string,
+    suites?: [JenkinsTestSuite],
+    childReports: [{
+        child: { number: number, url: string },
+        result: JenkinsTestReport
+    }]
+}
+
+interface JenkinsTestSuite {
+    cases: [JenkinsTestCase],
+    duration: number,
+    id: string,
+    name: string,
+    timestamp: string
+}
+
+interface JenkinsTestCase {
+    age: number,
+    className: string,
+    duration: number,
+    failedSince: number,
+    name: string,
+    skipped: boolean,
+    status: string
 }
 
 /*
@@ -126,8 +154,8 @@ declare module "jenkins" {
             testReport: TestReportApi;
         }
     }
-    function j(aUrl: string):j.JenkinsApi;
-    function j({baseUrl: string, promisify: boolean}):j.JenkinsApi;
+    function j(aUrl: string): j.JenkinsApi;
+    function j({baseUrl: string, promisify: boolean}): j.JenkinsApi;
 
     export = j;
 }

@@ -4,13 +4,15 @@ import { upsertItems } from '../../knex/upsert';
 
 class StoredJob {
 
-    static save = (job: JenkinsJob, upstreamJob?: JenkinsJob) => {
-        const jobId = stringToHash(job.name);
-        const upstreamJobId = upstreamJob ? stringToHash(upstreamJob.name) : undefined;
+    static toId(job: JenkinsJob) {
+        return job ? stringToHash(job.name) : undefined;
+    }
+
+    static save(job: JenkinsJob, upstreamJob?: JenkinsJob) {
 
         return upsertItems(dbInstance, 'Job', 'jobId', {
-            jobId,
-            upstreamJobId,
+            jobId: StoredJob.toId(job),
+            upstreamJobId: StoredJob.toId(upstreamJob),
             json: JSON.stringify(job),
             name: job.name
         });
