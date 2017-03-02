@@ -1,0 +1,5 @@
+{
+    "name": "Your bot name",
+    "token": "xxxxxxx",
+    "channel": "Slack channel to spam"
+}

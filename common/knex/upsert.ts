@@ -1,3 +1,11 @@
+import * as lodash from 'lodash';
+
+function objectToString(param: any) {
+    return lodash.isObject(param)
+        ? JSON.stringify(param)
+        : param;
+}
+
 /**
  * Perform an "Upsert" using the "INSERT ... ON CONFLICT ... " syntax in PostgreSQL 9.5
  * @link http://www.postgresql.org/docs/9.5/static/sql-insert.html
@@ -22,11 +30,16 @@ function upsertItems(knex: any, tableName: string, conflictTarget: any, itemData
     let exclusions = Object.keys(firstObjectIfArray)
         .filter(c => conflictTargets.indexOf(c) > -1)
         .map(c => knex.raw('?? = EXCLUDED.??', [c, c]).toString())
-        .join(",\n");
+        .join(',\n');
 
-    let insertString = knex(tableName).insert(itemData).toString();
+    let insertString = knex(tableName)
+        .insert(lodash.mapValues(itemData, objectToString))
+        .toString();
+
     let conflictString = knex
-        .raw(` ON CONFLICT (??) DO UPDATE SET ${exclusions} RETURNING *;`, [conflictTargets]).toString();
+        .raw(` ON CONFLICT (??) DO UPDATE SET ${exclusions} RETURNING *;`, [conflictTargets])
+        .toString();
+
     let query = (insertString + conflictString).replace(/\?/g, '\\?');
 
     return knex.raw(query)

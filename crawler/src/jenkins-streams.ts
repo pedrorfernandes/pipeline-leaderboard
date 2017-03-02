@@ -32,6 +32,7 @@ const jobObservable = configIntervalObservable
     .share();
 
 const buildObservable = jobObservable
+  //.filter(isBuildNotInDatabase)
     .flatMap(
         function getBuilds({job}) {
             const buildPromises = job.builds.map(

@@ -1,33 +1,20 @@
 import * as Rx from '@reactivex/rxjs';
-import { StoredJob } from '../../common/models/src/stored-job';
-import { StoredBuild } from '../../common/models/src/stored-build';
-import { StoredTestCase } from '../../common/models/src/stored-test-case';
-
 import {
-    jobObservable,
-    buildObservable,
-    upstreamBuildObservable,
-    testReportObservable
-} from './jenkins-streams';
+    storedJobObservable,
+    storedBuildObservable,
+    storedTestCaseObservable
+} from './storage-streams';
 
-const storedJobObservable = jobObservable
-    .map(function ({ job, upstreamJob }) {
-        return StoredJob.save(upstreamJob)
-            .then(() => StoredJob.save(job, upstreamJob));
-    });
+import { testReportObservable } from './jenkins-streams';
 
-const storedBuildObservable = testReportObservable
-    .map(function ({ job, upstreamJob, build, testReport }) {
-        return StoredBuild.save(job, upstreamJob, build, testReport);
-    });
+import { messageObservable } from './slack-streams';
 
-const storedTestCaseObservable = testReportObservable
-    .map(function ({ job, upstreamJob, build, testReport }) {
-        return StoredTestCase.save(job, upstreamJob, build, testReport);
-    });
-
-[storedJobObservable, storedBuildObservable, storedTestCaseObservable]
-    .map((observable) => observable.subscribe());
+[
+    storedJobObservable,
+    storedBuildObservable,
+    storedTestCaseObservable,
+    messageObservable
+].map((observable) => observable.subscribe());
 
 testReportObservable.subscribe(
     function ({job, build, upstreamJob, testReport}) {

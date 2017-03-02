@@ -55,7 +55,7 @@ class StoredTestCase {
                 suiteDuration: suite.duration,
                 status: testCase.status,
                 skipped: testCase.skipped,
-                json: JSON.stringify(testCase)
+                json: testCase
             });
         };
 
@@ -64,7 +64,8 @@ class StoredTestCase {
         return Promise.all(testCases.map(({ testCase }) => storeTestCase(testCase)))
             .then(() =>
                 Promise.all(testCases.map(({ testCase, suite }) => connectTestCaseToBuild(testCase, suite)))
-            );
+            )
+            .then(() => testCases);
     }
 }
 
