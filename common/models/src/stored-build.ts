@@ -11,17 +11,20 @@ class StoredBuild {
 
     static save(
         job: JenkinsJob,
-        upstreamJob: JenkinsJob,
         build: JenkinsBuild,
-        testReport: JenkinsTestReport
+        testReport?: JenkinsTestReport,
+        upstreamJob?: JenkinsJob,
+        upstreamBuild?: JenkinsBuild
     ) {
         return upsertItems(dbInstance, 'JobBuild', 'buildId', {
             buildId: StoredBuild.toId(job, build),
             jobId: StoredJob.toId(job),
-            upstreamBuildId: StoredBuild.toId(job, build),
+            upstreamBuildId: StoredBuild.toId(upstreamJob, upstreamBuild),
             number: build.number,
             buildJson: JSON.stringify(build),
-            testReportJson: JSON.stringify(testReport)
+            testReportJson: testReport
+                ? JSON.stringify(testReport)
+                : undefined
         });
     }
 }

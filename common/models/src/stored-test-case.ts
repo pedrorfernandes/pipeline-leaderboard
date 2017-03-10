@@ -27,7 +27,10 @@ class StoredTestCase {
         job: JenkinsJob,
         upstreamJob: JenkinsJob,
         build: JenkinsBuild,
-        testReport: JenkinsTestReport
+        testCases: {
+            testCase: JenkinsTestCase;
+            suite: JenkinsTestSuite;
+        }[]
     ) {
         const storeTestCase = (testCase: JenkinsTestCase) => {
             return upsertItems(dbInstance, 'TestCase', 'testCaseId', {
@@ -38,13 +41,6 @@ class StoredTestCase {
                 suite: testCase.className
             });
         };
-
-        const extractTestCases = (report: JenkinsTestReport) =>
-            lodash.flatMap(report.childReports, ({ result: { suites } }) =>
-                lodash.flatMap(suites, (suite) =>
-                    lodash.flatMap(suite.cases, (testCase) => ({ testCase, suite }))
-                )
-            );
 
         const connectTestCaseToBuild = (testCase: JenkinsTestCase, suite: JenkinsTestSuite) => {
             return upsertItems(dbInstance, 'TestCase_JobBuild', ['testCaseId', 'buildId'], {
@@ -59,13 +55,10 @@ class StoredTestCase {
             });
         };
 
-        const testCases = extractTestCases(testReport);
-
         return Promise.all(testCases.map(({ testCase }) => storeTestCase(testCase)))
             .then(() =>
                 Promise.all(testCases.map(({ testCase, suite }) => connectTestCaseToBuild(testCase, suite)))
-            )
-            .then(() => testCases);
+            );
     }
 }
 

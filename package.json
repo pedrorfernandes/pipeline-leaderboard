@@ -52,7 +52,7 @@
     "typescript": "^2.1.4"
   },
   "dependencies": {
-    "@reactivex/rxjs": "^5.0.0-rc.5",
+    "@reactivex/rxjs": "^5.2.0",
     "jenkins": "git://github.com/pedrorfernandes/node-jenkins.git#master",
     "knex": "^0.12.6",
     "lodash": "^4.17.4",
