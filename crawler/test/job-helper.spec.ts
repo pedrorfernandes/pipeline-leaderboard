@@ -4,6 +4,7 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as sinon from 'sinon';
 import 'sinon-as-promised';
 import { load } from 'proxyquire';
+import * as Jenkins from 'jenkins';
 use(sinonChai);
 use(chaiAsPromised);
 
@@ -23,14 +24,14 @@ describe('getUpstreamBuild', function () {
     describe('when the upstream is in the build causes', function () {
 
         it('should return the build for that job', function () {
-            const downstreamBuild = <JenkinsBuild>{
+            const downstreamBuild = <Jenkins.Build>{
                 actions: [{
                     causes: [{
                         upstreamProject: 'upstream', upstreamBuild: 123
                     }]
                 }]
             };
-            const upstreamBuild = <JenkinsBuild>{ name: 'upstream' };
+            const upstreamBuild = <Jenkins.Build>{ name: 'upstream' };
 
             jenkins.build.get.withArgs('upstream', 123).resolves(upstreamBuild);
 
@@ -45,7 +46,7 @@ describe('getUpstreamBuild', function () {
         it('should search the build causes until it finds the upstream', function () {
             const downstreamBuilds = [1, 2, 3]
                 .map((index) => {
-                    return <JenkinsBuild>{
+                    return <Jenkins.Build>{
                         actions: [{
                             causes: [{
                                 upstreamProject: `upstream ${index}`, upstreamBuild: index
@@ -54,7 +55,7 @@ describe('getUpstreamBuild', function () {
                     };
                 })
                 .concat([
-                    <JenkinsBuild>{
+                    <Jenkins.Build>{
                         actions: [{
                             causes: [{
                                 upstreamProject: 'final upstream', upstreamBuild: 123
@@ -62,7 +63,7 @@ describe('getUpstreamBuild', function () {
                         }]
                     }
                 ]);
-            const upstreamBuild = <JenkinsBuild>{ name: 'upstream' };
+            const upstreamBuild = <Jenkins.Build>{ name: 'upstream' };
 
             jenkins.build.get.withArgs('upstream 1', 1).resolves(downstreamBuilds[1]);
             jenkins.build.get.withArgs('upstream 2', 2).resolves(downstreamBuilds[2]);
@@ -77,7 +78,7 @@ describe('getUpstreamBuild', function () {
         describe('and the build causes do not contain upstream data', function () {
 
             it('should search the previous build number', function () {
-                const downstreamBuild = <JenkinsBuild>{
+                const downstreamBuild = <Jenkins.Build>{
                     number: 30,
                     actions: [{
                         causes: [{
@@ -85,7 +86,7 @@ describe('getUpstreamBuild', function () {
                         }]
                     }]
                 };
-                const previousDownstreamBuild = <JenkinsBuild>{
+                const previousDownstreamBuild = <Jenkins.Build>{
                     number: 29,
                     actions: [{
                         causes: [{
@@ -93,7 +94,7 @@ describe('getUpstreamBuild', function () {
                         }]
                     }]
                 };
-                const upstreamBuild = <JenkinsBuild>{ name: 'upstream' };
+                const upstreamBuild = <Jenkins.Build>{ name: 'upstream' };
 
                 jenkins.build.get.withArgs('downstream', 29).resolves(previousDownstreamBuild);
                 jenkins.build.get.withArgs('upstream', 123).resolves(upstreamBuild);
@@ -106,7 +107,7 @@ describe('getUpstreamBuild', function () {
             describe('and the previous build does not exist', function () {
 
                 it('should return an error', function () {
-                    const downstreamBuild = <JenkinsBuild>{
+                    const downstreamBuild = <Jenkins.Build>{
                         number: 30,
                         actions: [{
                             causes: [{
@@ -114,7 +115,7 @@ describe('getUpstreamBuild', function () {
                             }]
                         }]
                     };
-                    const previousDownstreamBuild = <JenkinsBuild>{
+                    const previousDownstreamBuild = <Jenkins.Build>{
                         number: 29,
                         actions: [{
                             causes: [{

@@ -1,6 +1,7 @@
 import { jenkinsInstance as jenkins } from './jenkins';
+import * as Jenkins from 'jenkins';
 
-function getUpstreamBuild(jobName: string, build: JenkinsBuild, upstreamJobName: string): Promise<JenkinsBuild> {
+function getUpstreamBuild(jobName: string, build: Jenkins.Build, upstreamJobName: string): Promise<Jenkins.Build> {
 
     const { upstreamProject, upstreamBuild } =
         build.actions
@@ -11,7 +12,7 @@ function getUpstreamBuild(jobName: string, build: JenkinsBuild, upstreamJobName:
     // TODO lazy load from DB
     if (!upstreamProject) {
         return jenkins.build.get(jobName, build.number - 1)
-            .then((jenkinsBuild) => getUpstreamBuild(jobName, jenkinsBuild, upstreamJobName));
+            .then((JenkinsBuild) => getUpstreamBuild(jobName, JenkinsBuild, upstreamJobName));
     }
 
     if (upstreamProject === upstreamJobName) {
@@ -20,7 +21,7 @@ function getUpstreamBuild(jobName: string, build: JenkinsBuild, upstreamJobName:
 
     if (upstreamProject !== upstreamJobName) {
         return jenkins.build.get(upstreamProject, upstreamBuild)
-            .then((jenkinsBuild) => getUpstreamBuild(upstreamProject, jenkinsBuild, upstreamJobName));
+            .then((JenkinsBuild) => getUpstreamBuild(upstreamProject, JenkinsBuild, upstreamJobName));
     }
 }
 

@@ -7,13 +7,14 @@ import {
 
 // import { testReportObservable } from './jenkins-streams';
 
-// import { messageObservable } from './slack-streams';
+import { messageObservable } from './slack-streams';
+
+messageObservable.subscribe();
 
 [
     storedJobObservable,
     storedBuildObservable,
     storedTestCaseObservable,
-    // messageObservable
 ].map((observable) => observable.subscribe(
     function ({job, build, upstreamJob, testReport}) {
         console.log('GOT', job.name, build.number, upstreamJob.name, testReport.totalCount);
