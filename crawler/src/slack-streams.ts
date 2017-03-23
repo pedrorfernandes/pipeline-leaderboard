@@ -53,21 +53,19 @@ const messageObservable = storedTestCaseObservable
                         testCase: testCases
                             .find(({ testCase }) => StoredTestCase.toId(testCase) === parseInt(testCaseId))
                     }));
-
-                    }
-                );
+                });
         }
     )
     .map(function ({ testCase, count, warningConfig, upstreamJob}) {
-        console.log('sending message');
-        return bot
-            .postMessageToChannel(config.channel,
-                `The test case ${StoredTestCase.getExternalId(testCase.testCase)}
-                has failed ${count} times
-                in the last ${warningConfig.totalProductBuilds} builds of ${upstreamJob.name}`
+        return Rx.Observable
+            .fromPromise(bot.postMessageToChannel(
+                config.channel,
+                `The test case ${StoredTestCase.getExternalId(testCase.testCase)}` +
+                ` has failed ${count} times` +
+                ` in the last ${warningConfig.totalProductBuilds}` +
+                ` builds of ${upstreamJob.name}`
             )
-            .then((message) => console.log(`message was posted to ${config.channel}, got ${message}`))
-            .catch((error) => console.log(error));
+        );
     });
 
 

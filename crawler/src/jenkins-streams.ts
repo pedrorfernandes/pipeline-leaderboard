@@ -3,6 +3,7 @@ import * as Jenkins from 'jenkins';
 import { jenkinsInstance as jenkins } from './jenkins';
 import { getUpstreamBuild } from './job-helper';
 import * as lodash from 'lodash';
+import { getBuilds } from '../../common/queries/src/build';
 const config = require('../../config/jenkins.config.json');
 const HOUR_IN_MILLISECONDS = 3600000;
 const POLLING_INTERVAL = config['polling-interval-hours'] * HOUR_IN_MILLISECONDS;
@@ -38,13 +39,25 @@ const jobObservable = configIntervalObservable
             return { job, upstreamJob };
         }
     )
-    .filter(({ job, upstreamJob }) => job !== null && upstreamJob !== null)
+    .filter(({ job, upstreamJob }) => !!job && !!upstreamJob)
     .share();
 
 const buildObservable = jobObservable
-  //.filter(isBuildNotInDatabase)
     .flatMap(
-        function getBuilds({job}): Rx.Observable<Jenkins.Build> {
+        function fetchStoredBuilds({ job, upstreamJob }) {
+            return Rx.Observable.fromPromise(
+                getBuilds(job.name, job.builds.map(({ number }) => number))
+            );
+        },
+        function trimAlreadyStoredBuilds({ job, upstreamJob }, builds) {
+            const buildNumbers = builds.map(({number}) => number);
+            job.builds = job.builds.filter(({ number }) => buildNumbers.indexOf(number) === -1);
+
+            return { job, upstreamJob };
+        }
+    )
+    .flatMap(
+        function getBuilds({ job }): Rx.Observable<Jenkins.Build> {
             const buildPromises = job.builds.map(
                 (build) => jenkins.build.get(job.name, build.number)
             );
@@ -58,7 +71,7 @@ const buildObservable = jobObservable
             return Object.assign({}, input, { build });
         }
     )
-    .filter(({ build }) => build !== null)
+    .filter(({ build }) => !!build)
     .share();
 
 const upstreamBuildObservable = buildObservable

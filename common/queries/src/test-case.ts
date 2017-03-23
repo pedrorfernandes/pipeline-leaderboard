@@ -1,4 +1,5 @@
 import { dbInstance } from '../../connections/database';
+import * as Jenkins from 'jenkins';
 
 function getTestCasesWithFailureAboveThreshold(
     upstreamJobId,
@@ -26,6 +27,14 @@ function getTestCasesWithFailureAboveThreshold(
         .select('testCaseId');
 }
 
+function getTestReport(name: string, number: number): Promise<Jenkins.TestReport> {
+    return dbInstance('JobBuild')
+        .innerJoin('Job', 'JobBuild.jobId', 'Job.jobId')
+        .where({ name, number })
+        .then(([{ testReportJson }]) => testReportJson);
+}
+
 export {
-    getTestCasesWithFailureAboveThreshold
+    getTestCasesWithFailureAboveThreshold,
+    getTestReport
 }
