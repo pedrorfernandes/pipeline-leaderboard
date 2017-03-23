@@ -14,9 +14,9 @@ function getInstance(host = config.host, user = config.username, pass = config.p
 }
 
 function delayPromise (duration) {
-	return function() {
-		return new Promise((resolve, reject) => setTimeout(resolve, duration));
-	};
+    return function () {
+        return new Promise((resolve, reject) => setTimeout(resolve, duration));
+    };
 };
 
 const jenkinsInstance = getInstance();
@@ -43,7 +43,7 @@ const jenkinsInstanceWithQueue = {
                 .then(() => jenkinsInstance.testReport.get(name, number));
         }
     }
-}
+};
 
 export {
     jenkinsInstanceWithQueue as jenkinsInstance

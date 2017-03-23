@@ -6,38 +6,33 @@ import {
     testCasesObservable
 } from './jenkins-streams';
 
-function returnInput<I> (input: I) {
-    return input;
-}
-
 const storedJobObservable = testCasesObservable
     .flatMap(
         ({ upstreamJob }) => StoredJob.save(upstreamJob),
-        returnInput
+        (input, storedUpstreamJob) => Object.assign({}, input, { storedUpstreamJob })
     )
     .flatMap(
-        ({ job, upstreamJob }) => StoredJob.save(job, upstreamJob),
-        returnInput
+        ({ job, storedUpstreamJob }) => StoredJob.save(job, storedUpstreamJob),
+        (input, storedJob) => Object.assign({}, input, { storedJob })
     )
     .share();
 
 const storedBuildObservable = storedJobObservable
     .flatMap(
-        ({ upstreamJob, upstreamBuild }) => StoredBuild.save(upstreamJob, upstreamBuild),
-        returnInput
+        ({ storedUpstreamJob, upstreamBuild }) => StoredBuild.save(storedUpstreamJob, upstreamBuild),
+        (input, storedUpstreamBuild) => Object.assign({}, input, { storedUpstreamBuild })
     )
     .flatMap(
-        ({ job, build, testReport, upstreamJob, upstreamBuild }) =>
-            StoredBuild.save(job, build, testReport, upstreamJob, upstreamBuild),
-        returnInput
+        ({ storedJob, build, testReport, storedUpstreamJob, storedUpstreamBuild }) =>
+            StoredBuild.save(storedJob, build, testReport, storedUpstreamJob, storedUpstreamBuild),
+        (input, storedBuild) => Object.assign({}, input, { storedBuild })
     )
     .share();
 
 const storedTestCaseObservable = storedBuildObservable
     .flatMap(
-        ({ job, upstreamJob, build, testCases }) =>
-            StoredTestCase.save(job, upstreamJob, build, testCases),
-        returnInput
+        ({ storedJob, storedBuild, testCases }) => StoredTestCase.save(storedJob, storedBuild, testCases),
+        (input, storedTestCases) => Object.assign({}, input, { storedTestCases })
     )
     .share();
 

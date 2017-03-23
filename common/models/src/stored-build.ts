@@ -6,27 +6,39 @@ import * as Jenkins from 'jenkins';
 
 class StoredBuild {
 
-    static toId(job: Jenkins.Job, build: Jenkins.Build) {
+    buildId: number;
+    [key: string]: any;
+    number: number;
+    actions: any[];
+    name: string;
+
+    static toId(job: StoredJob, build: Jenkins.Build) {
         return job ? stringToHash(`${job.name}${build.number}`) : undefined;
     }
 
     static save(
-        job: Jenkins.Job,
+        storedJob: StoredJob,
         build: Jenkins.Build,
         testReport?: Jenkins.TestReport,
-        upstreamJob?: Jenkins.Job,
-        upstreamBuild?: Jenkins.Build
-    ) {
+        upstreamJob?: StoredJob,
+        upstreamBuild?: StoredBuild
+    ): Promise<StoredBuild> {
+
+        const upstreamBuildId = upstreamBuild ? upstreamBuild.buildId : undefined;
+
+        const storedBuild: StoredBuild = Object.assign({}, build, {
+            buildId: StoredBuild.toId(storedJob, build),
+            upstreamBuildId
+        });
+
         return upsertItems(dbInstance, 'JobBuild', 'buildId', {
-            buildId: StoredBuild.toId(job, build),
-            jobId: StoredJob.toId(job),
-            upstreamBuildId: StoredBuild.toId(upstreamJob, upstreamBuild),
+            buildId: StoredBuild.toId(storedJob, build),
+            jobId: storedJob.jobId,
+            upstreamBuildId,
             number: build.number,
             buildJson: JSON.stringify(build),
-            testReportJson: testReport
-                ? JSON.stringify(testReport)
-                : undefined
-        });
+            testReportJson: testReport ? JSON.stringify(testReport) : undefined
+        }).then(() => storedBuild);
     }
 }
 

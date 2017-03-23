@@ -86,7 +86,7 @@ declare module "jenkins" {
             offlineCause: any;
             offlineCauseReason: string;
             oneOffExecutors: any[];
-            temporarilyOffline: boolean
+            temporarilyOffline: boolean;
         }
 
         export class NodeListInfo {
@@ -111,7 +111,7 @@ declare module "jenkins" {
             [key: string]: any;
             number: number;
             actions: any[];
-            name: string
+            name: string;
         }
 
         export class Job {
@@ -131,7 +131,7 @@ declare module "jenkins" {
             childReports: [{
                 child: { number: number, url: string };
                 result: TestReport
-            }]
+            }];
         }
 
         export class TestSuite {
@@ -139,7 +139,7 @@ declare module "jenkins" {
             duration: number;
             id: string;
             name: string;
-            timestamp: string
+            timestamp: string;
         }
 
         export class TestCase {
@@ -149,7 +149,7 @@ declare module "jenkins" {
             failedSince: number;
             name: string;
             skipped: boolean;
-            status: string
+            status: string;
         }
     }
     function Jenkins(aUrl: string): Jenkins.JenkinsApi;

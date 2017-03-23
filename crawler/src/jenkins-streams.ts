@@ -44,13 +44,13 @@ const jobObservable = configIntervalObservable
 
 const buildObservable = jobObservable
     .flatMap(
-        function fetchStoredBuilds({ job, upstreamJob }) {
+        function fetchStoredBuilds({ job }) {
             return Rx.Observable.fromPromise(
                 getBuilds(job.name, job.builds.map(({ number }) => number))
             );
         },
         function trimAlreadyStoredBuilds({ job, upstreamJob }, builds) {
-            const buildNumbers = builds.map(({number}) => number);
+            const buildNumbers = builds.map(({ number }) => number);
             job.builds = job.builds.filter(({ number }) => buildNumbers.indexOf(number) === -1);
 
             return { job, upstreamJob };

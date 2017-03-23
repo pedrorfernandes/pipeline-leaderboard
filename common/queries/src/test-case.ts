@@ -7,7 +7,7 @@ function getTestCasesWithFailureAboveThreshold(
     numberOfUpstreamBuilds,
     maxTestCaseFailureCount,
     testCaseIds
-): Promise<{ count: string, testCaseId: string }[]> {
+): Promise<{ count: number, testCaseId: number }[]> {
     let lastNUpstreamBuildIds = dbInstance('JobBuild')
         .where({ jobId: upstreamJobId })
         .whereBetween('number', [upstreamBuildNumber - numberOfUpstreamBuilds, upstreamBuildNumber])
@@ -24,7 +24,10 @@ function getTestCasesWithFailureAboveThreshold(
         .whereIn('status', ['REGRESSION', 'FAILED'])
         .whereIn('testCaseId', testCaseIds)
         .havingRaw('count(*) > ?', maxTestCaseFailureCount)
-        .select('testCaseId');
+        .select('testCaseId')
+        .then((results) =>
+            results.map( ({count, testCaseId}) => ({ count: parseInt(count), testCaseId: parseInt(testCaseId) }) )
+        );
 }
 
 function getTestReport(name: string, number: number): Promise<Jenkins.TestReport> {

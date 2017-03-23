@@ -10,6 +10,16 @@ const testCaseExternalIdRegex = /\[(TC\d+|\d+)\]/;
 
 class StoredTestCase {
 
+    testCaseId: number;
+    externalId: string;
+    age: number;
+    className: string;
+    duration: number;
+    failedSince: number;
+    name: string;
+    skipped: boolean;
+    status: string;
+
     static getExternalId(testCase: Jenkins.TestCase) {
         const externalId = lodash.get(testCaseExternalIdRegex.exec(testCase.name), 0, null);
 
@@ -25,18 +35,18 @@ class StoredTestCase {
     }
 
     static save(
-        job: Jenkins.Job,
-        upstreamJob: Jenkins.Job,
-        build: Jenkins.Build,
+        storedJob: StoredJob,
+        storedBuild: StoredBuild,
         testCases: {
             testCase: Jenkins.TestCase;
             suite: Jenkins.TestSuite;
         }[]
-    ) {
+    ): Promise<StoredTestCase[]> {
+
         const storeTestCase = (testCase: Jenkins.TestCase) => {
             return upsertItems(dbInstance, 'TestCase', 'testCaseId', {
                 testCaseId: StoredTestCase.toId(testCase),
-                jobId: StoredJob.toId(job),
+                jobId: storedJob.jobId,
                 externalId: StoredTestCase.getExternalId(testCase),
                 name: testCase.name,
                 suite: testCase.className
@@ -46,7 +56,7 @@ class StoredTestCase {
         const connectTestCaseToBuild = (testCase: Jenkins.TestCase, suite: Jenkins.TestSuite) => {
             return upsertItems(dbInstance, 'TestCase_JobBuild', ['testCaseId', 'buildId'], {
                 testCaseId: StoredTestCase.toId(testCase),
-                buildId: StoredBuild.toId(job, build),
+                buildId: storedBuild.buildId,
                 timestamp: suite.timestamp,
                 duration: testCase.duration,
                 suiteDuration: suite.duration,
@@ -56,10 +66,16 @@ class StoredTestCase {
             });
         };
 
+        const storedTestCases: StoredTestCase[] = testCases.map(({ testCase }) => Object.assign({}, testCase, {
+            testCaseId: StoredTestCase.toId(testCase),
+            externalId: StoredTestCase.getExternalId(testCase),
+        }));
+
         return Promise.all(testCases.map(({ testCase }) => storeTestCase(testCase)))
             .then(() =>
                 Promise.all(testCases.map(({ testCase, suite }) => connectTestCaseToBuild(testCase, suite)))
-            );
+            )
+            .then(() => storedTestCases);
     }
 }
 
