@@ -1,25 +1,29 @@
 import * as Rx from '@reactivex/rxjs';
+import { messageObservable } from './slack-streams';
 import {
     storedJobObservable,
     storedBuildObservable,
     storedTestCaseObservable
 } from './storage-streams';
 
-// import { testReportObservable } from './jenkins-streams';
+storedJobObservable.subscribe(
+    ({storedJob}) => console.log(`Job ${storedJob.name} was stored`),
+    console.error
+);
 
-import { messageObservable } from './slack-streams';
+storedBuildObservable.subscribe(
+    ({storedJob, storedBuild}) => console.log(`Build ${storedBuild.number} from ${storedJob.name} was stored`),
+    console.error
+);
 
-messageObservable.subscribe();
+storedTestCaseObservable.subscribe(
+    ({storedJob, storedBuild, storedTestCases}) => console.log(
+        `${storedTestCases.length} tests cases of build ${storedBuild.number} from ${storedJob.name} were stored`
+    ),
+    console.error
+);
 
-[
-    storedJobObservable,
-    storedBuildObservable,
-    storedTestCaseObservable,
-].map((observable) => observable.subscribe(
-    function ({job, build, upstreamJob, testReport}) {
-        console.log('GOT', job.name, build.number, upstreamJob.name, testReport.totalCount);
-    },
-    function (error) {
-        console.log(error);
-    }
-));
+messageObservable.subscribe(
+    (message) => console.log(`${message} was posted to slack`),
+    console.error
+);

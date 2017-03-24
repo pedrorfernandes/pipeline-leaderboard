@@ -54,16 +54,15 @@ const messageObservable = storedTestCaseObservable
                 });
         }
     )
-    .map(function ({ testCase, count, warningConfig, storedUpstreamJob}) {
-        return Rx.Observable
-            .fromPromise(bot.postMessageToChannel(
-                config.channel,
-                `The test case \`${testCase.name}\`` +
+    .flatMap(function ({ testCase, count, warningConfig, storedUpstreamJob}) {
+        const message = `The test case \`${testCase.name}\`` +
                 ` has failed ${count} times` +
                 ` in the last ${warningConfig.totalProductBuilds}` +
-                ` builds of ${storedUpstreamJob.name}`
-            )
-        );
+                ` builds of ${storedUpstreamJob.name}`;
+
+        return Rx.Observable
+            .fromPromise(bot.postMessageToChannel(config.channel, message))
+            .mapTo(message);
     });
 
 export {
