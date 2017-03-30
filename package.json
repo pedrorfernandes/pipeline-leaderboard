@@ -53,7 +53,7 @@
     "typescript": "^2.2.1"
   },
   "dependencies": {
-    "jenkins": "git://github.com/pedrorfernandes/node-jenkins.git#master",
+    "jenkins": "https://github.com/pedrorfernandes/node-jenkins/tarball/master",
     "knex": "^0.12.6",
     "lodash": "^4.17.4",
     "pg": "^6.1.2",

@@ -1,6 +1,5 @@
 {
   "client": "postgresql",
-  "debug": true,
   "connection": {
     "host": "db",
     "database": "postgres",
