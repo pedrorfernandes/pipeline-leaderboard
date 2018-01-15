@@ -60,7 +60,8 @@ const messageObservable = storedTestCaseObservable
     )
     .bufferTime(FIVE_MINUTES)
     .flatMap(allWarnings => lodash.partition(allWarnings, ({testCase}) => testCase.testCaseId))
-    .flatMap(function (failWarningsGroupedById) {
+    .filter((failWarningsGroupedById) => failWarningsGroupedById.length > 0)
+    .flatMap((failWarningsGroupedById) => {
         const [ { testCase } ] = failWarningsGroupedById;
 
         const failedTestsWarnings = failWarningsGroupedById
