@@ -61,7 +61,7 @@ const messageObservable = storedTestCaseObservable
     .bufferTime(FIVE_MINUTES)
     .flatMap(allWarnings => lodash.partition(allWarnings, ({testCase}) => testCase.testCaseId))
     .filter((failWarningsGroupedById) => failWarningsGroupedById.length > 0)
-    .flatMap((failWarningsGroupedById) => {
+    .map((failWarningsGroupedById) => {
         const [ { testCase } ] = failWarningsGroupedById;
 
         const failedTestsWarnings = failWarningsGroupedById
@@ -69,7 +69,7 @@ const messageObservable = storedTestCaseObservable
                 ` has failed ${count} times` +
                 ` in ${warningConfig.totalProductBuilds}` +
                 ` builds of ${storedUpstreamJob.name}` +
-                ` (from ${warningConfig.totalProductBuilds - storedUpstreamBuild.number}` +
+                ` (${storedUpstreamBuild.number - warningConfig.totalProductBuilds}` +
                 ` to ${storedUpstreamBuild.number})`
             );
 
