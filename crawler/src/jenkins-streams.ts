@@ -4,9 +4,16 @@ import { jenkinsInstance as jenkins } from './jenkins';
 import { getUpstreamBuild } from './job-helper';
 import * as lodash from 'lodash';
 import { getBuilds } from '../../common/queries/src/build';
+
+class JobConfig {
+    testJob: string;
+    productJob: string;
+}
+
 const config = require('../../config/jenkins.config.json');
 const HOUR_IN_MILLISECONDS = 3600000;
 const POLLING_INTERVAL = config['polling-interval-hours'] * HOUR_IN_MILLISECONDS;
+const jobConfigs: JobConfig[] = config.jobs;
 
 const logErrorAndMapTo = (defaultValue) =>
     (error) => Rx.Observable
@@ -14,15 +21,10 @@ const logErrorAndMapTo = (defaultValue) =>
         .do(console.error)
         .mapTo(defaultValue);
 
-class JobConfig {
-    testJob: string;
-    productJob: string;
-}
-
 const configIntervalObservable: Rx.Observable<JobConfig> =
     Rx.Observable
         .timer(0, POLLING_INTERVAL)
-        .flatMap(() => config.jobs)
+        .flatMap(() => jobConfigs)
         .share();
 
 const jobObservable = configIntervalObservable
@@ -68,7 +70,7 @@ const buildObservable = jobObservable
                 .catch(logErrorAndMapTo(null));
         },
         function returnCombined(input, build) {
-            return Object.assign({}, input, { build });
+            return { ...input, build };
         }
     )
     .filter(({ build }) => !!build)
@@ -84,7 +86,7 @@ const upstreamBuildObservable = buildObservable
                 .catch(logErrorAndMapTo(null));
         },
         function returnCombined(input, upstreamBuild) {
-            return Object.assign({}, input, { upstreamBuild });
+            return { ...input, upstreamBuild };
         }
     )
     .filter(({ upstreamBuild }) => upstreamBuild !== null)
@@ -100,7 +102,7 @@ const testReportObservable = upstreamBuildObservable
                 .catch(logErrorAndMapTo(null));
         },
         function returnCombined(input, testReport) {
-            return Object.assign({}, input, { testReport });
+            return { ...input, testReport };
         }
     )
     .filter(({ testReport }) => testReport !== null)
@@ -115,7 +117,7 @@ const extractTestCases = (testReport: Jenkins.TestReport) =>
 
 const testCasesObservable = testReportObservable
     .map(function addTestCases(input) {
-        return Object.assign({}, input, { testCases: extractTestCases(input.testReport) });
+        return { ...input, testCases: extractTestCases(input.testReport) };
     })
     .share();
 

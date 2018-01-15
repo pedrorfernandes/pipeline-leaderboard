@@ -7,7 +7,12 @@ const MAX_IN_QUEUE = Infinity;
 const DELAY_BETWEEN_REQUESTS = 500;
 const requestQueue = new Queue(MAX_CONCURRENT_REQUESTS, MAX_IN_QUEUE);
 
-function getInstance(host = config.host, user = config.username, pass = config.password, protocol = config.protocol) {
+function getInstance(
+    host = config.host,
+    user = config.username,
+    pass = config.password,
+    protocol = config.protocol || 'http'
+) {
     const url = `${protocol}://${encodeURIComponent(user)}:${encodeURIComponent(pass)}@${encodeURIComponent(host)}/`;
 
     return Jenkins({ baseUrl: url, promisify: true });

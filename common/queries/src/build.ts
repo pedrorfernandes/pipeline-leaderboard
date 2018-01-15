@@ -1,13 +1,6 @@
 import { dbInstance } from '../../connections/database';
 import * as Jenkins from 'jenkins';
 
-function getBuild(name: string, number: number): Promise<Jenkins.Build> {
-    return dbInstance('JobBuild')
-        .innerJoin('Job', 'JobBuild.jobId', 'Job.jobId')
-        .where({ name, number })
-        .then(([{ buildJson }]) => ({ build: buildJson }));
-}
-
 function getBuilds(jobName: string, buildNumbers: number[]): Promise<Jenkins.Build[]> {
     return dbInstance('JobBuild')
         .innerJoin('Job', 'JobBuild.jobId', 'Job.jobId')
@@ -17,6 +10,5 @@ function getBuilds(jobName: string, buildNumbers: number[]): Promise<Jenkins.Bui
 }
 
 export {
-    getBuild,
     getBuilds
 }

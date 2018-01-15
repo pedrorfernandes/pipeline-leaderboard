@@ -4,6 +4,7 @@ import { StoredTestCase } from '../../common/models/src/stored-test-case';
 import { StoredJob } from '../../common/models/src/stored-job';
 import { getTestCasesWithFailureAboveThreshold } from '../../common/queries/src/test-case';
 import * as Rx from '@reactivex/rxjs';
+import * as lodash from 'lodash';
 
 class SlackConfig {
     name: string;
@@ -24,10 +25,12 @@ const bot = new SlackBot({
     name: config.name
 });
 
+const FIVE_MINUTES = 5 * 60 * 1000;
+
 const messageObservable = storedTestCaseObservable
     .flatMap(
         () => config.warnings.failed,
-        (input, warningConfig) => Object.assign({}, input, { warningConfig })
+        (input, warningConfig) => ({ ...input, warningConfig })
     )
     .flatMap(
         function ({ storedUpstreamJob, storedUpstreamBuild, storedTestCases, warningConfig }) {
@@ -49,16 +52,27 @@ const messageObservable = storedTestCaseObservable
                         count,
                         warningConfig,
                         storedUpstreamJob,
+                        storedUpstreamBuild,
                         testCase: storedTestCases.find((testCase) => testCase.testCaseId === testCaseId)
                     }));
                 });
         }
     )
-    .flatMap(function ({ testCase, count, warningConfig, storedUpstreamJob}) {
-        const message = `The test case \`${testCase.name}\`` +
+    .bufferTime(FIVE_MINUTES)
+    .flatMap(allWarnings => lodash.partition(allWarnings, ({testCase}) => testCase.testCaseId))
+    .flatMap(function (failWarningsGroupedById) {
+        const [ { testCase } ] = failWarningsGroupedById;
+
+        const failedTestsWarnings = failWarningsGroupedById
+            .map(({ count, warningConfig, storedUpstreamJob, storedUpstreamBuild}) =>
                 ` has failed ${count} times` +
-                ` in the last ${warningConfig.totalProductBuilds}` +
-                ` builds of ${storedUpstreamJob.name}`;
+                ` in ${warningConfig.totalProductBuilds}` +
+                ` builds of ${storedUpstreamJob.name}` +
+                ` (from ${warningConfig.totalProductBuilds - storedUpstreamBuild.number}` +
+                ` to ${storedUpstreamBuild.number})`
+            );
+
+        const message = `\`${testCase.name}\`\n` + failedTestsWarnings.join('\n    ');
 
         return Rx.Observable
             .fromPromise(bot.postMessageToChannel(config.channel, message))

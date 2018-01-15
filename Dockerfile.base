@@ -1,4 +1,4 @@
-FROM node:7.3
+FROM node:8.9.4
 
 RUN wget https://github.com/jwilder/dockerize/releases/download/v0.3.0/dockerize-linux-amd64-v0.3.0.tar.gz
 RUN tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.3.0.tar.gz

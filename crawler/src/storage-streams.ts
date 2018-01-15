@@ -9,30 +9,30 @@ import {
 const storedJobObservable = testCasesObservable
     .flatMap(
         ({ upstreamJob }) => StoredJob.save(upstreamJob),
-        (input, storedUpstreamJob) => Object.assign({}, input, { storedUpstreamJob })
+        (input, storedUpstreamJob) => ({ ...input, storedUpstreamJob })
     )
     .flatMap(
         ({ job, storedUpstreamJob }) => StoredJob.save(job, storedUpstreamJob),
-        (input, storedJob) => Object.assign({}, input, { storedJob })
+        (input, storedJob) => ({ ...input, storedJob })
     )
     .share();
 
 const storedBuildObservable = storedJobObservable
     .flatMap(
         ({ storedUpstreamJob, upstreamBuild }) => StoredBuild.save(storedUpstreamJob, upstreamBuild),
-        (input, storedUpstreamBuild) => Object.assign({}, input, { storedUpstreamBuild })
+        (input, storedUpstreamBuild) => ({ ...input, storedUpstreamBuild })
     )
     .flatMap(
         ({ storedJob, build, testReport, storedUpstreamJob, storedUpstreamBuild }) =>
             StoredBuild.save(storedJob, build, testReport, storedUpstreamJob, storedUpstreamBuild),
-        (input, storedBuild) => Object.assign({}, input, { storedBuild })
+        (input, storedBuild) => ({ ...input, storedBuild })
     )
     .share();
 
 const storedTestCaseObservable = storedBuildObservable
     .flatMap(
         ({ storedJob, storedBuild, testCases }) => StoredTestCase.save(storedJob, storedBuild, testCases),
-        (input, storedTestCases) => Object.assign({}, input, { storedTestCases })
+        (input, storedTestCases) => ({ ...input, storedTestCases })
     )
     .share();
 
