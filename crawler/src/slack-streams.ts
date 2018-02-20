@@ -76,7 +76,7 @@ const messageObservable = storedTestCaseObservable
         const message = `\`${testCase.name}\`\n` + failedTestsWarnings.join('\n    ');
 
         return Rx.Observable
-            .fromPromise(bot.postMessageToChannel(config.channel, message))
+            .fromPromise(bot.postTo(config.channel, message))
             .mapTo(message);
     });
 
